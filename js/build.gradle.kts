@@ -42,15 +42,15 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    implementation(libs.rhino)
-    implementation(libs.jsoup)
-    implementation(libs.gson)
+    api(libs.rhino)
+    api(libs.jsoup)
+    api(libs.gson)
 
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.logging)
-    implementation(libs.ktor.serialization.gson)
+    api(libs.ktor.client.core)
+    api(libs.ktor.client.android)
+    api(libs.ktor.client.content.negotiation)
+    api(libs.ktor.client.logging)
+    api(libs.ktor.serialization.gson)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

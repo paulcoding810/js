@@ -17,9 +17,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.paulcoding.js.ui.theme.JsTheme
+import io.ktor.client.request.get
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.jsoup.Jsoup
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +54,7 @@ fun JSView(modifier: Modifier = Modifier) {
     var headlines by remember { mutableStateOf(emptyList<String>()) }
 
     LaunchedEffect(Unit) {
+        // use JS
         val js = JS()
         js.evaluateString<Unit>(
             "console.log('Hello from js')"
@@ -76,6 +80,17 @@ fun JSView(modifier: Modifier = Modifier) {
             headlines = it.headlines
         }.onFailure {
             title = it.message ?: "Unknown error"
+        }
+
+        // use jsoup
+        launch(Dispatchers.IO) {
+            Jsoup.connect("https://en.wikipedia.org/").followRedirects(true).get().title()
+                .alsoLog("Jsoup")
+        }
+
+        // use ktorClient
+        ktorClient.use { client ->
+            client.get("https://en.wikipedia.org/").alsoLog("ktorClient")
         }
     }
 
