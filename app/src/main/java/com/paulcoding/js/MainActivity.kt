@@ -19,10 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.paulcoding.js.ui.theme.JsTheme
-import io.ktor.client.request.get
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.jsoup.Jsoup
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,38 +56,63 @@ fun JSView(modifier: Modifier = Modifier) {
             "console.log('Hello from js')"
         )
 
-        js.evaluateString<Headlines>(
+        js.evaluateString<String>(
             """
-            let doc = fetch("https://en.wikipedia.org/")
-            let title = doc.title()
-            let newsHeadlines = doc.select("#mp-itn b a")
-            let headlines = []
-            newsHeadlines.forEach(a => {
-                headlines.push(a.attr("title"))
-            })
-            let data = {
-                title: title,
-                headlines: headlines
-            }
-            data
+            let data = fetch("https://jsonplaceholder.typicode.com/posts/1")
+            console.log(data)
+            let json = data.json()
+            console.log(json)
+            json.title
         """.trimIndent()
-        ).onSuccess {
-            title = it.title
-            headlines = it.headlines
-        }.onFailure {
-            title = it.message ?: "Unknown error"
-        }
+        ).alsoLog("json")
+
+        js.evaluateString<String>(
+            """
+            let data = fetch("https://en.wikipedia.org/")
+            let html = data.html()
+            let title = html.title()
+            console.log(title)
+            console.log(typeof(title))
+            let x = String(title)
+            x
+            """
+        ).alsoLog("html")
+
+//        js.evaluateString<Headlines>(
+//            """
+//            let doc = fetch("https://en.wikipedia.org/").html()
+//            console.log(doc)
+//            let title = doc.title()
+//            let newsHeadlines = doc.select("#mp-itn b a")
+//            let headlines = []
+//            newsHeadlines.forEach(a => {
+//                headlines.push(a.attr("title"))
+//            })
+//            let data = {
+//                title: title,
+//                headlines: headlines
+//            }
+//            data
+//        """.trimIndent()
+//        ).onSuccess {
+//            title = it.title
+//            headlines = it.headlines
+//        }.onFailure {
+//            title = it.message ?: "Unknown error"
+//        }
 
         // use jsoup
-        launch(Dispatchers.IO) {
-            Jsoup.connect("https://en.wikipedia.org/").followRedirects(true).get().title()
-                .alsoLog("Jsoup")
-        }
+//        launch(Dispatchers.IO) {
+//            Jsoup.connect("https://en.wikipedia.org/").followRedirects(true).get().title()
+//                .alsoLog("Jsoup")
+//        }
 
         // use ktorClient
-        ktorClient.use { client ->
-            client.get("https://en.wikipedia.org/").alsoLog("ktorClient")
-        }
+//        ktorClient.use { client ->
+//            client.get("https://en.wikipedia.org/").alsoLog("ktorClient")
+//        }
+
+        // rest
     }
 
     Column(modifier = modifier.padding(16.dp)) {
