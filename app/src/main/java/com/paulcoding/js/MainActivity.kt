@@ -58,16 +58,6 @@ fun JSView(modifier: Modifier = Modifier) {
 
         js.evaluateString<String>(
             """
-            let data = fetch("https://jsonplaceholder.typicode.com/posts/1")
-            console.log(data)
-            let json = data.json()
-            console.log(json)
-            json.title
-        """.trimIndent()
-        ).alsoLog("json")
-
-        js.evaluateString<String>(
-            """
             let data = fetch("https://en.wikipedia.org/")
             let html = data.html()
             let title = html.title()
@@ -75,6 +65,28 @@ fun JSView(modifier: Modifier = Modifier) {
             console.log(typeof(title))
             let x = String(title)
             x
+            """
+        ).alsoLog("html")
+
+        js.evaluateString<String>(
+            """
+            data = fetch('https://jsonplaceholder.typicode.com/posts', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    title: 'foo',
+                    body: 'bar',
+                    userId: 1,
+                  }),
+                  headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                    'X-Auth': 'my-auth-token',
+                  },
+                })
+                .json()
+            
+            console.log("response=" + JSON.stringify(data))
+            let title = data.title
+            title
             """
         ).alsoLog("html")
 

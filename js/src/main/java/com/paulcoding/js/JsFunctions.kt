@@ -1,7 +1,11 @@
 package com.paulcoding.js
 
+import com.google.gson.Gson
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.request.request
+import io.ktor.http.HttpMethod
 import io.ktor.utils.io.InternalAPI
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.runBlocking
@@ -10,11 +14,18 @@ import org.jsoup.nodes.Document
 import org.mozilla.javascript.BaseFunction
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.NativeJSON
+import org.mozilla.javascript.NativeObject
 import org.mozilla.javascript.Scriptable
 import java.io.File
 import java.io.InputStream
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+
+data class FetchParams(
+    val method: String = "GET",
+    val headers: Map<String, String>? = null,
+    val body: Any? = null,
+)
 
 data class FetchResponse(
     val cx: Context?,
@@ -51,14 +62,29 @@ val fetchFunction = object : BaseFunction() {
         scope: Scriptable?,
         thisObj: Scriptable?,
         args: Array<out Any?>
-    ): Any? {
+    ): Any {
+
         val url = args.getOrNull(0) as? String
+        val params = (args.getOrNull(1) as? NativeObject)?.let {
+            Gson().fromJson(Gson().toJson(it), FetchParams::class.java)
+        } ?: FetchParams()
+
         if (url.isNullOrEmpty())
             throw IllegalArgumentException("URL is required")
 
         return runBlocking {
             ktorClient.use { client ->
-                val data = client.get(url)
+                val data = client.request(url) {
+                    method = HttpMethod(params.method)
+                    headers {
+                        params.headers?.forEach { (key, value) ->
+                            append(key, value)
+                        }
+                    }
+                    if (params.body != null) {
+                        body = params.body
+                    }
+                }
                 val inputStream = data.rawContent.toInputStream()
                 val res: String = data.body()
                 FetchResponse(cx, scope, res, inputStream)
