@@ -1,7 +1,10 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    `maven-publish`
+    id("com.vanniktech.maven.publish") version "0.30.0"
 }
 
 android {
@@ -57,37 +60,43 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
+mavenPublishing {
+    configure(
+        AndroidSingleVariantLibrary(
+            variant = "release",
+            sourcesJar = true,
+            publishJavadocJar = true,
+        )
+    )
 
-                groupId = "com.github.paulcoding810"
-                artifactId = "js"
-                version = "1.0.0"
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 
-                pom {
-                    name.set("js")
-                    description.set("Rhino wrapper for android kotlin")
-                    url.set("https://github.com/paulcoding810/js")
+    coordinates("com.paulcoding", "js", "1.0.0")
 
-                    licenses {
-                        license {
-                            name.set("The Apache License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id.set("paulcoding810")
-                            name.set("Paul Nguyen")
-                            email.set("paulcoding810@gmail.com")
-                        }
-                    }
-                }
+    pom {
+        name.set("js")
+        description.set("Rhino wrapper for android kotlin")
+        inceptionYear.set("2025")
+        url.set("https://github.com/paulcoding810/js/")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
+        }
+        developers {
+            developer {
+                id.set("paulcoding810")
+                name.set("Paul Nguyen")
+                url.set("https://github.com/paulcoding810/")
+            }
+        }
+        scm {
+            url.set("https://github.com/paulcoding810/js/")
+            connection.set("scm:git:git://github.com/paulcoding810/js.git")
+            developerConnection.set("scm:git:ssh://git@github.com/paulcoding810/js.git")
         }
     }
 }
