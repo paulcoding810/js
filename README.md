@@ -18,7 +18,7 @@ Add the following dependency to your app's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.paulcoding:js:1.0.0")  // Replace with actual version
+    implementation("com.paulcoding:js:1.0.1")
 }
 ```
 

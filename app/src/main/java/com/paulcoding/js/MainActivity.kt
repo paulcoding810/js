@@ -61,6 +61,8 @@ fun JSView(modifier: Modifier = Modifier) {
             let data = fetch("https://en.wikipedia.org/")
             let html = data.html()
             let title = html.title()
+            let uri = html.select("#Welcome_to_Wikipedia > a").first().absUrl("href")
+            console.log(uri)
             console.log(title)
             console.log(typeof(title))
             let x = String(title)

@@ -18,6 +18,7 @@ import org.mozilla.javascript.NativeObject
 import org.mozilla.javascript.Scriptable
 import java.io.File
 import java.io.InputStream
+import java.net.URL
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -28,6 +29,7 @@ data class FetchParams(
 )
 
 data class FetchResponse(
+    val url: String,
     val cx: Context?,
     val scope: Scriptable?,
     val response: String,
@@ -37,9 +39,21 @@ data class FetchResponse(
         return response
     }
 
+    val baseUrl: String
+        get() {
+            return try {
+                URL(url).let {
+                    it.protocol + "://" + it.host
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
+            }
+        }
+
     fun html(): Document {
         try {
-            return Jsoup.parse(inputStream, "UTF-8", "")
+            return Jsoup.parse(inputStream, "UTF-8", baseUrl)
         } catch (e: Exception) {
             e.printStackTrace()
             return Document("")
@@ -87,7 +101,7 @@ val fetchFunction = object : BaseFunction() {
                 }
                 val inputStream = data.rawContent.toInputStream()
                 val res: String = data.body()
-                FetchResponse(cx, scope, res, inputStream)
+                FetchResponse(url, cx, scope, res, inputStream)
             }
         }
     }
