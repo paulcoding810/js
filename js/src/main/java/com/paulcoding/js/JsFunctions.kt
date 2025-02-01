@@ -99,6 +99,9 @@ val fetchFunction = object : BaseFunction() {
                         body = params.body
                     }
                 }
+                if (data.status.value >= 400) {
+                    throw IllegalArgumentException("${data.status.value}: ${data.status.description}")
+                }
                 val inputStream = data.rawContent.toInputStream()
                 val res: String = data.body()
                 FetchResponse(url, cx, scope, res, inputStream)
