@@ -5,11 +5,11 @@ A Kotlin-based Android library that provides seamless JavaScript execution and i
 ## Features
 
 - Execute JavaScript code from strings or files
-- Built-in functions for network requests (fetch, xhr)
-- Base64 encoding/decoding support
-- Console logging
-- File importing capability
-- JSON conversion utilities
+- Built-in network functions with fetch
+- HTML parsing with JSoup integration
+- Base64 decoding support
+- Console logging capabilities
+- JSON parsing and conversion
 - Coroutine support for asynchronous operations
 
 ## Installation
@@ -18,7 +18,7 @@ Add the following dependency to your app's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.paulcoding:js:1.0.1")
+    implementation("com.paulcoding:js:1.0.2")
 }
 ```
 
@@ -63,50 +63,18 @@ suspend fun callJsFunction() {
 }
 ```
 
-### Loading JavaScript from File
+### Loading JS Object
 
 ```kotlin
-// Load from file in app's files directory
+// Load from app's files directory
 val js = JS("scripts", "main.js")
 
-// Or with full path
+// Or with absolute path
 val js = JS(File("/path/to/script.js"))
 ```
 
-### Built-in Functions
-
-The library provides several built-in JavaScript functions:
-
-#### fetch()
-```javascript
-const html = fetch('https://example.com')
-```
-
-#### xhr()
-```javascript
-const data = xhr('https://api.example.com/data')
-```
-
-#### import()
-```javascript
-import('utils.js')
-```
-
-#### console.log()
-```javascript
-console.log('Debug message')
-```
-
-#### atob()
-```javascript
-const decoded = atob('SGVsbG8gV29ybGQ=')
-```
-
-### Custom Properties
-
-You can pass custom properties to the JavaScript environment:
-
 ```kotlin
+// Pass custom properties to the JavaScript environment:
 val properties = mapOf(
     "apiKey" to "your-api-key",
     "baseUrl" to "https://api.example.com"
@@ -114,16 +82,48 @@ val properties = mapOf(
 val js = JS(properties = properties)
 ```
 
+### Built-in JavaScript Functions
+
+#### Network Requests (fetch)
+```javascript
+// Basic GET request
+const response = fetch('https://api.example.com/data')
+const jsonData = response.json()
+// or
+const htmlDoc = response.html()
+// or
+const textContent = response.text()
+
+// Advanced request with options
+const response = fetch('https://api.example.com/data', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ key: 'value' })
+})
+```
+
+#### Console Logging
+```javascript
+console.log('Debug message')
+```
+
+#### Base64 Decoding
+```javascript
+const decoded = atob('SGVsbG8gV29ybGQ=')
+```
+
 ## Dependencies
 
-- [Rhino](https://github.com/mozilla/rhino): JavaScript engine
-- [Ktor](https://ktor.io/): HTTP client
-- [Gson](https://github.com/google/gson): JSON parsing
-- [JSoup](https://jsoup.org/): HTML parsing
+- [Rhino](https://github.com/mozilla/rhino) - JavaScript engine
+- [Ktor](https://ktor.io/) - HTTP client
+- [Gson](https://github.com/google/gson) - JSON parsing
+- [JSoup](https://jsoup.org/) - HTML parsing
 
-## Proguard
+## ProGuard Configuration
 
-```
+```proguard
 -keepattributes Signature
 -dontwarn org.mozilla.javascript.**
 -keep class org.mozilla.javascript.** { *; }
@@ -139,4 +139,4 @@ val js = JS(properties = properties)
 
 ## License
 
-[License](LICIENSE)
+See [License](LICENSE)
