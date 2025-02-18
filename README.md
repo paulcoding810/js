@@ -1,5 +1,7 @@
 # Android JavaScript Library
 
+[![Maven Central](https://img.shields.io/maven-central/v/com.paulcoding/js.svg)](https://central.sonatype.com/artifact/com.paulcoding/js)
+
 A Kotlin-based Android library that provides seamless JavaScript execution and integration capabilities using Mozilla's Rhino engine.
 
 ## Features
@@ -136,6 +138,10 @@ const decoded = atob('SGVsbG8gV29ybGQ=')
 - Minimum SDK: 24
 - Kotlin: 1.8+
 - Java: 11
+
+## Credits
+
+[VBook Extensions](https://github.com/Darkrai9x/vbook-extensions)
 
 ## License
 
