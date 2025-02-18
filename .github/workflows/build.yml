@@ -35,6 +35,8 @@ jobs:
           restore-keys: |
             gradle-
 
+      - name: Decode a Base64 signingInMemoryKey
+        run: echo "${{ secrets.MAVEN_BASE64 }}" | base64 --decode > ~/.gradle/gradle.properties
 
       - name: Run Gradle Publish to Maven Local
         run: ./gradlew publishToMavenLocal
