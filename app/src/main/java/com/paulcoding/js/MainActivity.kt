@@ -87,7 +87,7 @@ fun JSView(modifier: Modifier = Modifier) {
                 .json()
             
             console.log("response=" + JSON.stringify(data))
-            let title = data.title
+            let title = data[0].title
             title
             """
         ).alsoLog("html")

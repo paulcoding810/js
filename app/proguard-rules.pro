@@ -19,3 +19,26 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+### Rhino
+-keepattributes Signature
+-dontwarn org.mozilla.javascript.**
+-keep class org.mozilla.javascript.** { *; }
+-keep class org.jsoup.** { *; }
+-dontwarn org.jspecify.annotations.NullMarked
+
+### Ktor and OkHttp
+-keep class okhttp3.** { *; }
+-keep class com.squareup.okhttp3.** { *; }
+
+-keep class io.ktor.** { *; }
+-dontwarn java.lang.management.ManagementFactory
+-dontwarn java.lang.management.RuntimeMXBean
+
+### Gson
+-keep class com.google.gson.** { *; }
+-keep class com.paulcoding.hviewer.model.** { *; }
+-keep class com.paulcoding.hviewer.js.** { *; }
+
+### R8
+-dontwarn kotlin.Cloneable$DefaultImpls

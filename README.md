@@ -126,11 +126,26 @@ const decoded = atob('SGVsbG8gV29ybGQ=')
 ## ProGuard Configuration
 
 ```proguard
+### Rhino
 -keepattributes Signature
 -dontwarn org.mozilla.javascript.**
 -keep class org.mozilla.javascript.** { *; }
 -keep class org.jsoup.** { *; }
 -dontwarn org.jspecify.annotations.NullMarked
+
+### Ktor and OkHttp
+-keep class okhttp3.** { *; }
+-keep class com.squareup.okhttp3.** { *; }
+
+-keep class io.ktor.** { *; }
+-dontwarn java.lang.management.ManagementFactory
+-dontwarn java.lang.management.RuntimeMXBean
+
+### Gson
+-keep class com.google.gson.** { *; }
+
+### R8
+-dontwarn kotlin.Cloneable$DefaultImpls
 ```
 
 ## Requirements

@@ -1,5 +1,6 @@
 package com.paulcoding.js
 
+import androidx.annotation.Keep
 import com.google.gson.Gson
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -28,6 +29,7 @@ data class FetchParams(
     val body: Any? = null,
 )
 
+@Keep
 data class FetchResponse(
     val url: String,
     val cx: Context?,
