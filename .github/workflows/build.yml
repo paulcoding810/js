@@ -22,8 +22,7 @@ jobs:
           java-version: '21'
           distribution: 'jetbrains'
 
-      - name: Set up Gradle
-        uses: gradle/wrapper-validation-action@v1
+      - uses: gradle/actions/setup-gradle@v4
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
@@ -35,13 +34,13 @@ jobs:
           restore-keys: |
             gradle-
 
-      - name: Decode a Base64 signingInMemoryKey
-        run: |
-          mkdir -p ~/.gradle
-          echo "${{ secrets.MAVEN_BASE64 }}" | base64 --decode >> ~/.gradle/gradle.properties
-
-      - name: Run Gradle Publish to Maven Local
+      - name: Publish to Maven Local
         run: ./gradlew publishToMavenLocal
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
 
 #      - name: Upload artifact to GitHub Packages
 #        uses: actions/upload-artifact@v3
