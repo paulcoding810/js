@@ -178,3 +178,18 @@ val atobFunction = object : BaseFunction() {
         return decoded.decodeToString()
     }
 }
+
+@OptIn(ExperimentalEncodingApi::class)
+val btoaFunction = object : BaseFunction() {
+    override fun call(
+        cx: Context?,
+        scope: Scriptable?,
+        thisObj: Scriptable?,
+        args: Array<out Any>
+    ): Any {
+        val decoded = args.getOrNull(0) as? String
+            ?: throw IllegalArgumentException("Decoded string is required")
+        val encoded = Base64.Default.encode(decoded.encodeToByteArray())
+        return encoded
+    }
+}

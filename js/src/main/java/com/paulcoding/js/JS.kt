@@ -64,6 +64,7 @@ class JS(file: File? = null, properties: Map<String, String>? = null) {
         ScriptableObject.putProperty(scope, "fetch", fetchFunction)
         ScriptableObject.putProperty(scope, "xhr", xhrFunction)
         ScriptableObject.putProperty(scope, "atob", atobFunction)
+//        ScriptableObject.putProperty(scope, "btoa", btoaFunction)
         ScriptableObject.putProperty(scope, "console", NativeObject().apply {
             put("log", this, logFunction)
         })
