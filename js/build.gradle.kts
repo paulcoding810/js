@@ -70,7 +70,7 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("com.paulcoding", "js", "1.0.3")
+    coordinates("com.paulcoding", "js", "1.0.4")
 
     pom {
         name.set("js")
