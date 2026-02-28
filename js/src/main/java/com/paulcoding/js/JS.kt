@@ -1,33 +1,15 @@
 package com.paulcoding.js
 
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
-import org.mozilla.javascript.NativeArray
 import org.mozilla.javascript.NativeObject
 import org.mozilla.javascript.ScriptableObject
 import java.io.File
 import java.io.FileReader
-
-fun toJsonElement(jsObject: Any?, gson: Gson = Gson()): JsonElement {
-    return when (jsObject) {
-        is NativeObject -> {
-            val map = jsObject.entries.associate { it.key.toString() to it.value }
-            gson.toJsonTree(map)
-        }
-
-        is NativeArray -> {
-            val list = jsObject.toArray().toList()
-            gson.toJsonTree(list)
-        }
-
-        else -> gson.toJsonTree(jsObject)
-    }
-}
 
 class JS(file: File? = null, properties: Map<String, String>? = null) {
     var scope: ScriptableObject
@@ -119,8 +101,8 @@ class JS(file: File? = null, properties: Map<String, String>? = null) {
         }
     }
 
-    inline fun <reified T> transformResult(result: Any): T {
-        val jsonElement = toJsonElement(result)
+    inline fun <reified T> transformResult(result: Any?): T {
+        val jsonElement = result.toJsonElement(gson)
         val type = object : TypeToken<T>() {}.type
         return gson.fromJson(jsonElement, type) as T
     }
