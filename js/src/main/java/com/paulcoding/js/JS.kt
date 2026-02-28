@@ -1,33 +1,15 @@
 package com.paulcoding.js
 
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
-import org.mozilla.javascript.NativeArray
 import org.mozilla.javascript.NativeObject
 import org.mozilla.javascript.ScriptableObject
 import java.io.File
 import java.io.FileReader
-
-fun toJsonElement(jsObject: Any?, gson: Gson = Gson()): JsonElement {
-    return when (jsObject) {
-        is NativeObject -> {
-            val map = jsObject.entries.associate { it.key.toString() to it.value }
-            gson.toJsonTree(map)
-        }
-
-        is NativeArray -> {
-            val list = jsObject.toArray().toList()
-            gson.toJsonTree(list)
-        }
-
-        else -> gson.toJsonTree(jsObject)
-    }
-}
 
 class JS(file: File? = null, properties: Map<String, String>? = null) {
     var scope: ScriptableObject
@@ -64,7 +46,6 @@ class JS(file: File? = null, properties: Map<String, String>? = null) {
         ScriptableObject.putProperty(scope, "fetch", fetchFunction)
         ScriptableObject.putProperty(scope, "xhr", xhrFunction)
         ScriptableObject.putProperty(scope, "atob", atobFunction)
-//        ScriptableObject.putProperty(scope, "btoa", btoaFunction)
         ScriptableObject.putProperty(scope, "console", NativeObject().apply {
             put("log", this, logFunction)
         })
@@ -91,36 +72,57 @@ class JS(file: File? = null, properties: Map<String, String>? = null) {
     }
 
     // <reified> is required (https://github.com/google/gson/blob/main/Troubleshooting.md#-illegalargumentexception-typetoken-type-argument-must-not-contain-a-type-variable)
-    suspend inline fun <reified T> evaluateString(script: String, sourceName: String = ""): Result<T> {
-        return withContext(Dispatchers.IO) {
-            return@withContext runCatching {
-                val context = prepareContext()
-                val result = context.evaluateString(scope, script, sourceName, 1, null)
-                transformResult<T>(result)
-            }.closeContext()
-        }
+    /**
+     * Evaluates a JavaScript script string and returns the result as type T.
+     *
+     * @param script The JavaScript code to evaluate
+     * @param sourceName Optional name for the script source (used in error reporting)
+     * @return Result containing the transformed value of type T or an error
+     */
+    suspend inline fun <reified T> evaluateString(
+        script: String,
+        sourceName: String = ""
+    ): Result<T> = withContext(Dispatchers.IO) {
+        runCatching {
+            val context = prepareContext()
+
+            // Evaluate the JavaScript script
+            val evaluationResult = try {
+                context.evaluateString(scope, script, sourceName, 1, null)
+            } catch (e: Exception) {
+                throw Exception("Failed to evaluate script: $script", e)
+            }
+
+            // Transform the result to the desired type
+            try {
+                transformResult<T>(evaluationResult)
+            } catch (e: Exception) {
+                throw Exception(
+                    "Failed to transform $evaluationResult (${evaluationResult.javaClass.name}) to ${T::class.simpleName}",
+                    e
+                )
+            }
+        }.closeContext()
     }
 
     suspend inline fun <reified T> callFunction(
         functionName: String,
         args: Array<Any> = arrayOf()
-    ): Result<T> {
-        return withContext(Dispatchers.IO) {
-            return@withContext runCatching {
-                val context = prepareContext()
-                val fn = try {
-                    scope.get(functionName, scope) as Function
-                } catch (e: Exception) {
-                    throw Exception("fn $functionName not found.")
-                }
-                val result = fn.call(context, scope, scope, args)
-                transformResult<T>(result)
-            }.closeContext()
-        }
+    ): Result<T> = withContext(Dispatchers.IO) {
+        runCatching {
+            val context = prepareContext()
+            val fn = try {
+                scope.get(functionName, scope) as Function
+            } catch (e: Exception) {
+                throw Exception("fn $functionName not found.")
+            }
+            val result = fn.call(context, scope, scope, args)
+            transformResult<T>(result)
+        }.closeContext()
     }
 
-    inline fun <reified T> transformResult(result: Any): T {
-        val jsonElement = toJsonElement(result)
+    inline fun <reified T> transformResult(result: Any?): T {
+        val jsonElement = result.toJsonElement(gson)
         val type = object : TypeToken<T>() {}.type
         return gson.fromJson(jsonElement, type) as T
     }

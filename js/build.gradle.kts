@@ -54,6 +54,7 @@ dependencies {
     api(libs.ktor.client.logging)
 
     testImplementation(libs.junit)
+    testImplementation(libs.slf4j)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
@@ -70,7 +71,7 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("com.paulcoding", "js", "1.0.3")
+    coordinates("com.paulcoding", "js", "1.0.4")
 
     pom {
         name.set("js")

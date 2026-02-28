@@ -20,5 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "js"
-include(":app")
 include(":js")
