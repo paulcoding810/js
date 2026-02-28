@@ -1,42 +1,55 @@
 package com.paulcoding.js
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
-import com.google.gson.JsonParser
+import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import org.mozilla.javascript.NativeArray
+import org.mozilla.javascript.NativeJavaObject
 import org.mozilla.javascript.NativeObject
 
-fun Any?.toJsonElement(gson: Gson = Gson()): JsonElement {
+fun Any?.toJsonElement(gson: Gson = defaultGson): JsonElement {
     return when (this) {
+
+        null -> JsonNull.INSTANCE
+
         is NativeObject -> {
-            val map = entries.associate { it.key.toString() to it.value }
-            gson.toJsonTree(map)
+            val jsonObject = JsonObject()
+            for ((key, value) in entries) {
+                jsonObject.add(key.toString(), value.toJsonElement(gson))
+            }
+            jsonObject
         }
 
         is NativeArray -> {
-            val list = toArray().toList()
-            gson.toJsonTree(list)
+            val jsonArray = JsonArray()
+            for (item in this) {
+                jsonArray.add(item.toJsonElement(gson))
+            }
+            jsonArray
         }
 
-        null -> JsonNull.INSTANCE
+        is NativeJavaObject -> {
+            this.unwrap().toJsonElement(gson)
+        }
+
         is String -> JsonPrimitive(this)
         is Number -> JsonPrimitive(this)
         is Boolean -> JsonPrimitive(this)
+
         is Map<*, *> -> gson.toJsonTree(this)
         is Collection<*> -> gson.toJsonTree(this)
 
         else -> try {
-            JsonParser.parseString(gson.toJson(this))
-        } catch (e: Exception) {
-            println("Error converting to JsonElement: $this")
-            e.printStackTrace()
             gson.toJsonTree(this)
         } catch (e: Exception) {
-            println("Error converting to JsonElement: $this")
             e.printStackTrace()
             JsonNull.INSTANCE
         }
     }
 }
+
+// Reuse one Gson instance
+private val defaultGson: Gson by lazy { Gson() }
